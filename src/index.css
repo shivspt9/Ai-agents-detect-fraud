@@ -1,0 +1,263 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  AGENTIC HONEYPOT DESIGN SYSTEM
+  Cybersecurity-themed dark interface with terminal/hacker aesthetic
+  All colors in HSL format
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    /* Core dark theme - cyber terminal aesthetic */
+    --background: 220 20% 4%;
+    --foreground: 160 100% 85%;
+
+    /* Cards with subtle glow */
+    --card: 220 18% 8%;
+    --card-foreground: 160 60% 90%;
+
+    /* Popover/dropdown */
+    --popover: 220 20% 6%;
+    --popover-foreground: 160 60% 90%;
+
+    /* Primary - Toxic green (main accent) */
+    --primary: 145 80% 42%;
+    --primary-foreground: 220 20% 4%;
+
+    /* Secondary - Electric blue */
+    --secondary: 200 90% 45%;
+    --secondary-foreground: 220 20% 4%;
+
+    /* Muted - Dark gray surfaces */
+    --muted: 220 15% 12%;
+    --muted-foreground: 160 20% 55%;
+
+    /* Accent - Neon cyan */
+    --accent: 180 90% 50%;
+    --accent-foreground: 220 20% 4%;
+
+    /* Destructive - Danger red */
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Warning - Amber */
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 20% 4%;
+
+    /* Success - Bright green */
+    --success: 145 80% 45%;
+    --success-foreground: 220 20% 4%;
+
+    /* Borders & inputs */
+    --border: 160 30% 20%;
+    --input: 220 15% 12%;
+    --ring: 145 80% 42%;
+
+    --radius: 0.5rem;
+
+    /* Custom honeypot colors */
+    --cyber-glow: 145 80% 42%;
+    --terminal-green: 160 100% 70%;
+    --matrix-green: 120 100% 50%;
+    --threat-red: 0 85% 55%;
+    --intel-blue: 200 90% 55%;
+    --scan-pulse: 180 100% 50%;
+
+    /* Sidebar */
+    --sidebar-background: 220 18% 6%;
+    --sidebar-foreground: 160 60% 80%;
+    --sidebar-primary: 145 80% 42%;
+    --sidebar-primary-foreground: 220 20% 4%;
+    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent-foreground: 160 60% 85%;
+    --sidebar-border: 160 20% 15%;
+    --sidebar-ring: 145 80% 42%;
+
+    /* Gradient definitions */
+    --gradient-cyber: linear-gradient(135deg, hsl(145, 80%, 42%) 0%, hsl(180, 90%, 50%) 100%);
+    --gradient-threat: linear-gradient(135deg, hsl(0, 85%, 55%) 0%, hsl(38, 92%, 50%) 100%);
+    --gradient-intel: linear-gradient(135deg, hsl(200, 90%, 45%) 0%, hsl(180, 90%, 50%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(220, 20%, 4%) 0%, hsl(220, 18%, 8%) 100%);
+
+    /* Shadows */
+    --shadow-glow: 0 0 20px hsl(145, 80%, 42%, 0.3);
+    --shadow-threat: 0 0 20px hsl(0, 85%, 55%, 0.3);
+    --shadow-card: 0 4px 24px hsl(0, 0%, 0%, 0.4);
+  }
+
+  .dark {
+    /* Same as root - this is a dark-only theme */
+    --background: 220 20% 4%;
+    --foreground: 160 100% 85%;
+    --card: 220 18% 8%;
+    --card-foreground: 160 60% 90%;
+    --popover: 220 20% 6%;
+    --popover-foreground: 160 60% 90%;
+    --primary: 145 80% 42%;
+    --primary-foreground: 220 20% 4%;
+    --secondary: 200 90% 45%;
+    --secondary-foreground: 220 20% 4%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 160 20% 55%;
+    --accent: 180 90% 50%;
+    --accent-foreground: 220 20% 4%;
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 160 30% 20%;
+    --input: 220 15% 12%;
+    --ring: 145 80% 42%;
+    --sidebar-background: 220 18% 6%;
+    --sidebar-foreground: 160 60% 80%;
+    --sidebar-primary: 145 80% 42%;
+    --sidebar-primary-foreground: 220 20% 4%;
+    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent-foreground: 160 60% 85%;
+    --sidebar-border: 160 20% 15%;
+    --sidebar-ring: 145 80% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Terminal text effect */
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Scanline effect for retro terminal feel */
+  .scanlines::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsl(0, 0%, 0%, 0.03) 2px,
+      hsl(0, 0%, 0%, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+@layer components {
+  /* Cyber glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(145, 80%, 42%, 0.4), 0 0 40px hsl(145, 80%, 42%, 0.2);
+  }
+
+  .glow-threat {
+    box-shadow: 0 0 20px hsl(0, 85%, 55%, 0.4), 0 0 40px hsl(0, 85%, 55%, 0.2);
+  }
+
+  .glow-intel {
+    box-shadow: 0 0 20px hsl(200, 90%, 55%, 0.4), 0 0 40px hsl(200, 90%, 55%, 0.2);
+  }
+
+  /* Terminal cursor blink */
+  .cursor-blink::after {
+    content: '▌';
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* Pulse animation for active threats */
+  .pulse-threat {
+    animation: pulse-threat 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-threat {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(0, 85%, 55%, 0.4); }
+    50% { box-shadow: 0 0 0 10px hsl(0, 85%, 55%, 0); }
+  }
+
+  /* Matrix rain effect text */
+  .text-glow {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px hsl(0, 0%, 0%, 0.3);
+  }
+
+  /* Data grid styling */
+  .data-grid {
+    background-image: 
+      linear-gradient(hsl(160, 30%, 20%, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(160, 30%, 20%, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Status indicators */
+  .status-active {
+    @apply bg-success text-success-foreground;
+  }
+
+  .status-threat {
+    @apply bg-destructive text-destructive-foreground;
+  }
+
+  .status-intel {
+    @apply bg-secondary text-secondary-foreground;
+  }
+}
+
+@layer utilities {
+  /* Gradient text */
+  .text-gradient-cyber {
+    background: linear-gradient(135deg, hsl(145, 80%, 50%) 0%, hsl(180, 90%, 55%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-threat {
+    background: linear-gradient(135deg, hsl(0, 85%, 60%) 0%, hsl(38, 92%, 55%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-cyber {
+    background: linear-gradient(135deg, hsl(145, 80%, 42%) 0%, hsl(180, 90%, 50%) 100%);
+  }
+
+  .bg-gradient-threat {
+    background: linear-gradient(135deg, hsl(0, 85%, 55%) 0%, hsl(38, 92%, 50%) 100%);
+  }
+
+  .bg-gradient-dark {
+    background: linear-gradient(180deg, hsl(220, 20%, 4%) 0%, hsl(220, 18%, 10%) 100%);
+  }
+
+  /* Border gradients */
+  .border-gradient-cyber {
+    border: 1px solid transparent;
+    background: linear-gradient(hsl(220, 18%, 8%), hsl(220, 18%, 8%)) padding-box,
+                linear-gradient(135deg, hsl(145, 80%, 42%) 0%, hsl(180, 90%, 50%) 100%) border-box;
+  }
+}

@@ -1,0 +1,7 @@
+project_id = "dcxvkamabjkqgfujdrjc"
+
+[functions.honeypot-engage]
+verify_jwt = false
+
+[functions.honeypot-stats]
+verify_jwt = false
