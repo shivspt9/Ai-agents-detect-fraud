@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
-import { AlertTriangle, MessageSquare, Shield, Clock } from "lucide-react";
+import { AlertTriangle, MessageSquare, Shield, Clock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,23 +19,25 @@ interface ThreatFeedProps {
 }
 
 const scamTypeColors: Record<string, string> = {
-  banking: "bg-destructive/20 text-destructive border-destructive/30",
-  phishing: "bg-warning/20 text-warning border-warning/30",
-  lottery: "bg-secondary/20 text-secondary border-secondary/30",
-  tech_support: "bg-accent/20 text-accent border-accent/30",
-  romance: "bg-pink-500/20 text-pink-400 border-pink-500/30",
-  investment: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  unknown: "bg-muted text-muted-foreground border-muted",
+  banking: "bg-destructive/15 text-destructive border-destructive/30",
+  phishing: "bg-warning/15 text-warning border-warning/30",
+  lottery: "bg-secondary/15 text-secondary border-secondary/30",
+  tech_support: "bg-accent/15 text-accent border-accent/30",
+  romance: "bg-pink-500/15 text-pink-400 border-pink-500/30",
+  investment: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+  unknown: "bg-muted/50 text-muted-foreground border-white/10",
 };
 
 export function ThreatFeed({ threats, onSelect, selectedId }: ThreatFeedProps) {
   if (!threats.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Shield className="h-12 w-12 text-muted-foreground/50 mb-4" />
-        <p className="text-muted-foreground">No active threats detected</p>
-        <p className="text-xs text-muted-foreground/70 mt-1">
-          The honeypot is monitoring for incoming scam attempts
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-muted/50">
+          <Shield className="h-10 w-10 text-muted-foreground/50" />
+        </div>
+        <p className="font-medium text-muted-foreground">No active threats</p>
+        <p className="mt-2 max-w-xs text-sm text-muted-foreground/80">
+          The honeypot is monitoring. New scam conversations will appear here.
         </p>
       </div>
     );
@@ -43,60 +45,68 @@ export function ThreatFeed({ threats, onSelect, selectedId }: ThreatFeedProps) {
 
   return (
     <ScrollArea className="h-[400px]">
-      <div className="space-y-3 pr-4">
-        {threats.map((threat) => (
+      <div className="space-y-2 p-4 pr-6">
+        {threats.map((threat, index) => (
           <button
             key={threat.conversation_id}
             onClick={() => onSelect?.(threat.conversation_id)}
             className={cn(
-              "w-full rounded-lg border bg-card/50 p-4 text-left transition-all duration-200",
-              "hover:bg-muted/50 hover:border-primary/50",
-              selectedId === threat.conversation_id && "border-primary bg-primary/5"
+              "group w-full rounded-xl border p-4 text-left transition-all duration-200",
+              "hover:border-primary/40 hover:bg-primary/5",
+              selectedId === threat.conversation_id
+                ? "border-primary/60 bg-primary/10 shadow-lg shadow-primary/5"
+                : "border-white/5 bg-card/50"
             )}
+            style={{ animationDelay: `${index * 30}ms` }}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "rounded-full p-2",
-                  threat.status === 'active' 
-                    ? "bg-destructive/20 text-destructive pulse-threat" 
-                    : "bg-muted text-muted-foreground"
-                )}>
-                  <AlertTriangle className="h-4 w-4" />
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex min-w-0 flex-1 items-start gap-4">
+                <div
+                  className={cn(
+                    "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl",
+                    threat.status === "active"
+                      ? "bg-destructive/15 text-destructive pulse-threat"
+                      : "bg-muted/50 text-muted-foreground"
+                  )}
+                >
+                  <AlertTriangle className="h-5 w-5" />
                 </div>
-                <div>
-                  <p className="font-mono text-sm text-foreground/90 truncate max-w-[180px]">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-mono text-sm font-medium text-foreground">
                     {threat.conversation_id}
                   </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge 
-                      variant="outline" 
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Badge
+                      variant="outline"
                       className={cn(
                         "text-xs capitalize",
                         scamTypeColors[threat.scam_type] || scamTypeColors.unknown
                       )}
                     >
-                      {threat.scam_type || 'analyzing'}
+                      {threat.scam_type || "analyzing"}
                     </Badge>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MessageSquare className="h-3 w-3" />
-                      {threat.turns}
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MessageSquare className="h-3.5 w-3.5" />
+                      {threat.turns} turns
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1">
-                <Badge 
-                  variant={threat.status === 'active' ? 'default' : 'secondary'}
+              <div className="flex flex-col items-end gap-1.5">
+                <Badge
+                  variant={threat.status === "active" ? "default" : "secondary"}
                   className={cn(
                     "text-xs",
-                    threat.status === 'active' && "bg-success text-success-foreground"
+                    threat.status === "active" && "bg-success text-success-foreground"
                   )}
                 >
+                  {threat.status === "active" && (
+                    <Zap className="mr-1 h-3 w-3" />
+                  )}
                   {threat.status}
                 </Badge>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
                   {formatDistanceToNow(new Date(threat.last_activity), { addSuffix: true })}
                 </span>
               </div>

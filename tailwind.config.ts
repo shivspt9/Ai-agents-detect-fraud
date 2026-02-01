@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -14,7 +15,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Space Grotesk', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
@@ -111,6 +112,14 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -119,12 +128,18 @@ export default {
         "scan-line": "scan-line 3s linear infinite",
         "typewriter": "typewriter 2s steps(40) forwards",
         "float": "float 3s ease-in-out infinite",
+        "fade-in-up": "fade-in-up 0.5s ease-out forwards",
+        "shimmer": "shimmer 2s linear infinite",
       },
       backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'cyber-grid': 'linear-gradient(hsl(160, 30%, 20%, 0.1) 1px, transparent 1px), linear-gradient(90deg, hsl(160, 30%, 20%, 0.1) 1px, transparent 1px)',
+        "shimmer-gradient": "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent)",
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "cyber-grid": "linear-gradient(hsl(217, 33%, 18%, 0.5) 1px, transparent 1px), linear-gradient(90deg, hsl(217, 33%, 18%, 0.5) 1px, transparent 1px)",
+      },
+      backgroundSize: {
+        "shimmer": "200% 100%",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

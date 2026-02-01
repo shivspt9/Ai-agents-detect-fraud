@@ -88,7 +88,13 @@ export function useHoneypotData() {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(intelChannel);
     };
-  }, [selectedConversationId]);
+  }, [
+    selectedConversationId,
+    conversationsQuery,
+    messagesQuery,
+    intelligenceQuery,
+    statsQuery,
+  ]);
 
   const refetchAll = useCallback(() => {
     statsQuery.refetch();

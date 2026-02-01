@@ -47,6 +47,10 @@ const INTEL_PATTERNS = {
     /account\s*(?:no|number|#)?[:\s]*(\d{9,18})/gi,
     /a\/c\s*(\d{9,18})/gi,
   ],
+  ifsc: [
+    /\b[A-Z]{4}0[A-Z0-9]{6}\b/g, // Indian IFSC code (11 chars)
+    /ifsc[:\s]*([A-Z]{4}0[A-Z0-9]{6})/gi,
+  ],
   upi_id: [
     /[a-zA-Z0-9._-]+@[a-zA-Z0-9]+/g, // UPI ID pattern
     /upi[:\s]*([a-zA-Z0-9._-]+@[a-zA-Z0-9]+)/gi,
@@ -67,24 +71,102 @@ const INTEL_PATTERNS = {
   ],
 };
 
-// Agent prompt - pretends to be a naive human victim
-const AGENT_SYSTEM_PROMPT = `You are a real human who has received a suspicious message.
-You do not know it is a scam.
-You must behave naturally and politely.
-You must never say you are an AI or artificial.
-You must not accuse or warn the sender.
-You act slightly confused but cooperative.
-Your goal is to continue conversation and subtly encourage the scammer to reveal:
-- Bank account number
-- UPI ID
-- Payment instructions
-- Phishing links
-- Phone numbers
+// Agent prompt - autonomous victim persona (Hindi/English mix, JSON output)
+const AGENT_SYSTEM_PROMPT = `You are an autonomous AI agent acting as a real human victim interacting with a scammer.
 
-Keep replies short (1-3 sentences), natural, and human-like.
-Use casual language, occasional typos, and show emotions like curiosity or mild concern.
-Never be suspicious or confrontational.
-Act like a perfect victim who is about to fall for the scam but needs more details.`;
+Your objective is NOT to detect or block the scammer.
+Your objective is to:
+1. Engage the scammer naturally
+2. Gain their trust
+3. Extract scam-related intelligence
+4. Never reveal you are an AI
+5. Maintain believable human behavior
+
+-----------------------------------------
+🎭 ROLE & BEHAVIOR
+-----------------------------------------
+You must behave like a normal person.
+You may:
+- Act confused
+- Ask innocent questions
+- Make small mistakes
+- Show hesitation
+- Take time to reply
+- Pretend to verify information
+
+You must NEVER:
+- Say you are an AI
+- Say you are detecting a scam
+- Mention security, police, or investigation
+- Refuse to continue conversation
+
+-----------------------------------------
+🧠 CONVERSATION STRATEGY
+-----------------------------------------
+Adapt your personality based on the scammer's message.
+
+If scammer asks for:
+• OTP → Act scared and confused
+• UPI → Pretend to send money
+• Bank details → Ask how to do transfer
+• Link → Ask if it is safe
+• Urgent action → Show panic
+
+Use human phrases like:
+- "Wait thoda…"
+- "Mujhe samajh nahi aa raha"
+- "Aap sure ho na?"
+- "Maine pehle kabhi nahi kiya"
+
+-----------------------------------------
+🎯 INFORMATION TO EXTRACT (SILENTLY)
+-----------------------------------------
+Try to collect:
+- Bank Account Number
+- IFSC Code
+- UPI ID
+- Payment Instructions
+- URLs or phishing links
+- Scam type
+
+DO NOT ask all at once.
+Extract naturally over multiple turns.
+
+-----------------------------------------
+🧠 MEMORY & REASONING
+-----------------------------------------
+- Remember previous messages
+- Refer to earlier details
+- Adjust strategy if scammer hesitates
+- Ask follow-up questions logically
+
+-----------------------------------------
+📦 OUTPUT FORMAT (STRICT)
+-----------------------------------------
+At every response, return output in JSON only:
+
+{
+  "reply_to_scammer": "<your next message>",
+  "extracted_intelligence": {
+    "bank_account": null,
+    "ifsc": null,
+    "upi_id": null,
+    "phishing_url": null
+  },
+  "confidence_score": 0.0,
+  "conversation_stage": "engaging | extracting | closing"
+}
+
+-----------------------------------------
+⚠️ IMPORTANT RULES
+-----------------------------------------
+✔ Stay calm and natural
+✔ Keep replies short and realistic
+✔ Never break character
+✔ Always aim to extract information
+✔ Do NOT end conversation unless scammer stops
+
+You are now ACTIVE.`;
 
 interface RequestBody {
   conversation_id: string;
@@ -163,16 +245,51 @@ function extractIntelligence(text: string): { type: string; value: string; confi
 }
 
 const FALLBACK_REPLIES = [
-  "Oh no, that sounds serious. Can you tell me what I need to do?",
-  "I'm a bit confused – could you send me the link or details again?",
-  "Okay, I want to fix this. What's the next step?",
+  "Wait thoda… mujhe samajh nahi aa raha. Can you tell me what I need to do?",
+  "Oh no, that sounds serious. Aap sure ho na? What's the next step?",
+  "Maine pehle kabhi nahi kiya. Could you send me the link or details again?",
   "Thanks for letting me know. Where do I need to go or what do I need to send?",
 ];
+
+interface AgentOutput {
+  reply_to_scammer: string;
+  extracted_intelligence?: {
+    bank_account?: string | string[] | null;
+    ifsc?: string | string[] | null;
+    upi_id?: string | string[] | null;
+    phishing_url?: string | string[] | null;
+  };
+  confidence_score?: number;
+  conversation_stage?: "engaging" | "extracting" | "closing";
+}
+
+function parseAgentOutput(raw: string): { reply: string; extracted?: AgentOutput["extracted_intelligence"]; confidence_score?: number; conversation_stage?: string } {
+  try {
+    const cleaned = raw.replace(/^```json\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+    const parsed = JSON.parse(cleaned) as AgentOutput;
+    const reply = typeof parsed.reply_to_scammer === "string" ? parsed.reply_to_scammer.trim() : "";
+    if (!reply) throw new Error("Missing reply_to_scammer");
+    return {
+      reply,
+      extracted: parsed.extracted_intelligence ?? undefined,
+      confidence_score: typeof parsed.confidence_score === "number" ? parsed.confidence_score : undefined,
+      conversation_stage: typeof parsed.conversation_stage === "string" ? parsed.conversation_stage : undefined,
+    };
+  } catch {
+    return { reply: raw.trim() || FALLBACK_REPLIES[0] };
+  }
+}
+
+function normalizeExtracted(value: string | string[] | null | undefined): string[] {
+  if (value == null) return [];
+  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === "string" && v.length > 0);
+  return typeof value === "string" && value.length > 0 ? [value] : [];
+}
 
 async function generateAgentResponse(
   messages: ConversationMessage[],
   apiKey: string
-): Promise<string> {
+): Promise<{ reply: string; extracted?: AgentOutput["extracted_intelligence"]; confidence_score?: number; conversation_stage?: string }> {
   const formattedMessages = messages.map(m => ({
     role: m.role === 'scammer' ? 'user' : m.role === 'agent' ? 'assistant' : 'system',
     content: m.content,
@@ -195,7 +312,7 @@ async function generateAgentResponse(
             { role: "system", content: AGENT_SYSTEM_PROMPT },
             ...formattedMessages,
           ],
-          max_tokens: 150,
+          max_tokens: 280,
           temperature: 0.8,
         }),
       });
@@ -209,7 +326,7 @@ async function generateAgentResponse(
 
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content?.trim();
-      if (content) return content;
+      if (content) return parseAgentOutput(content);
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
       console.warn(`AI model ${model} failed:`, lastError.message);
@@ -218,7 +335,7 @@ async function generateAgentResponse(
 
   const fallback = FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
   console.warn("[HONEYPOT] Using fallback reply after AI failure:", lastError?.message);
-  return fallback;
+  return { reply: fallback };
 }
 
 function jsonResponse(body: object, status: number) {
@@ -234,7 +351,7 @@ serve(async (req) => {
   }
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const apiKey = Deno.env.get("AI_API_KEY") ?? Deno.env.get("LOVABLE_API_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
@@ -349,8 +466,10 @@ serve(async (req) => {
       timestamp: timestamp || new Date().toISOString(),
     });
 
-    // Store extracted intelligence
+    // Store extracted intelligence (DB allows: bank_account, upi_id, phishing_url, phone_number, crypto_wallet, email)
+    const allowedIntelTypes = new Set(["bank_account", "upi_id", "phishing_url", "phone_number", "crypto_wallet", "email"]);
     for (const intel of intelFromMessage) {
+      if (!allowedIntelTypes.has(intel.type)) continue;
       await supabase.from("extracted_intelligence").upsert(
         {
           conversation_id,
@@ -364,6 +483,9 @@ serve(async (req) => {
     }
 
     let agentReply: string | null = null;
+    let conversationStage: string | undefined;
+    let agentConfidenceScore: number | undefined;
+    const agentExtractedIfsc: string[] = [];
 
     // If scam detected, activate agent and generate response
     if (scamResult.detected || conversation?.agent_active) {
@@ -379,12 +501,13 @@ serve(async (req) => {
         content: m.content,
       }));
 
-      // Generate agent response (uses fallback if LOVABLE_API_KEY missing or AI fails)
-      agentReply = await generateAgentResponse(
-        conversationHistory,
-        LOVABLE_API_KEY || ""
-      );
-      console.log(`[HONEYPOT] Agent reply:`, agentReply);
+      // Generate agent response (victim persona, JSON output)
+      const agentOutput = await generateAgentResponse(conversationHistory, apiKey ?? "");
+      agentReply = agentOutput.reply;
+      conversationStage = agentOutput.conversation_stage;
+      agentConfidenceScore = agentOutput.confidence_score;
+      agentExtractedIfsc.push(...normalizeExtracted(agentOutput.extracted?.ifsc));
+      console.log(`[HONEYPOT] Agent reply:`, agentReply, "stage:", agentOutput.conversation_stage);
 
       // Store agent response
       await supabase.from("messages").insert({
@@ -394,9 +517,31 @@ serve(async (req) => {
         timestamp: new Date().toISOString(),
       });
 
-      // Extract intelligence from agent reply (in case scammer shared something)
+      // Merge LLM-extracted intelligence (bank_account, ifsc, upi_id, phishing_url) into DB where type exists
+      const llmExtracted = agentOutput.extracted;
+      if (llmExtracted) {
+        const toStore: { type: string; value: string }[] = [];
+        for (const v of normalizeExtracted(llmExtracted.bank_account)) toStore.push({ type: "bank_account", value: v });
+        for (const v of normalizeExtracted(llmExtracted.upi_id)) toStore.push({ type: "upi_id", value: v });
+        for (const v of normalizeExtracted(llmExtracted.phishing_url)) toStore.push({ type: "phishing_url", value: v });
+        for (const row of toStore) {
+          await supabase.from("extracted_intelligence").upsert(
+            {
+              conversation_id,
+              intel_type: row.type,
+              value: row.value,
+              confidence: Math.round((agentOutput.confidence_score ?? 0.85) * 100),
+              context: agentReply?.substring(0, 200) ?? "",
+            },
+            { onConflict: "conversation_id,intel_type,value" }
+          );
+        }
+      }
+
+      // Regex extract from agent reply (scammer may have shared in same turn)
       const intelFromReply = extractIntelligence(agentReply);
       for (const intel of intelFromReply) {
+        if (!allowedIntelTypes.has(intel.type)) continue;
         await supabase.from("extracted_intelligence").upsert(
           {
             conversation_id,
@@ -419,6 +564,7 @@ serve(async (req) => {
     // Build response
     const extractedIntelligence: { [key: string]: string[] } = {
       bank_account: [],
+      ifsc: [...agentExtractedIfsc],
       upi_id: [],
       phishing_url: [],
       phone_number: [],
@@ -438,6 +584,8 @@ serve(async (req) => {
       scam_confidence: scamResult.confidence ?? conversation?.scam_confidence ?? 0,
       agent_active: scamResult.detected || conversation?.agent_active ?? false,
       agent_reply: agentReply,
+      conversation_stage: conversationStage ?? undefined,
+      confidence_score: agentConfidenceScore ?? undefined,
       engagement_metrics: {
         turns: conversation?.turn_count ?? 1,
         conversation_id,

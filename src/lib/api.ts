@@ -12,12 +12,15 @@ export interface HoneypotResponse {
   scam_confidence: number;
   agent_active: boolean;
   agent_reply: string | null;
+  conversation_stage?: "engaging" | "extracting" | "closing";
+  confidence_score?: number;
   engagement_metrics: {
     turns: number;
     conversation_id: string;
   };
   extracted_intelligence: {
     bank_account: string[];
+    ifsc?: string[];
     upi_id: string[];
     phishing_url: string[];
     phone_number: string[];

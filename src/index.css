@@ -1,123 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  AGENTIC HONEYPOT DESIGN SYSTEM
-  Cybersecurity-themed dark interface with terminal/hacker aesthetic
-  All colors in HSL format
-*/
-
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @layer base {
   :root {
-    /* Core dark theme - cyber terminal aesthetic */
-    --background: 220 20% 4%;
-    --foreground: 160 100% 85%;
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
 
-    /* Cards with subtle glow */
-    --card: 220 18% 8%;
-    --card-foreground: 160 60% 90%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
 
-    /* Popover/dropdown */
-    --popover: 220 20% 6%;
-    --popover-foreground: 160 60% 90%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Primary - Toxic green (main accent) */
-    --primary: 145 80% 42%;
-    --primary-foreground: 220 20% 4%;
+    --primary: 160 84% 39%;
+    --primary-foreground: 222 47% 6%;
 
-    /* Secondary - Electric blue */
-    --secondary: 200 90% 45%;
-    --secondary-foreground: 220 20% 4%;
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 222 47% 6%;
 
-    /* Muted - Dark gray surfaces */
-    --muted: 220 15% 12%;
-    --muted-foreground: 160 20% 55%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 58%;
 
-    /* Accent - Neon cyan */
-    --accent: 180 90% 50%;
-    --accent-foreground: 220 20% 4%;
+    --accent: 187 85% 53%;
+    --accent-foreground: 222 47% 6%;
 
-    /* Destructive - Danger red */
-    --destructive: 0 85% 55%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Warning - Amber */
     --warning: 38 92% 50%;
-    --warning-foreground: 220 20% 4%;
+    --warning-foreground: 222 47% 6%;
 
-    /* Success - Bright green */
-    --success: 145 80% 45%;
-    --success-foreground: 220 20% 4%;
+    --success: 142 71% 45%;
+    --success-foreground: 222 47% 6%;
 
-    /* Borders & inputs */
-    --border: 160 30% 20%;
-    --input: 220 15% 12%;
-    --ring: 145 80% 42%;
+    --border: 217 33% 18%;
+    --input: 217 33% 14%;
+    --ring: 160 84% 39%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Custom honeypot colors */
-    --cyber-glow: 145 80% 42%;
-    --terminal-green: 160 100% 70%;
-    --matrix-green: 120 100% 50%;
-    --threat-red: 0 85% 55%;
-    --intel-blue: 200 90% 55%;
-    --scan-pulse: 180 100% 50%;
-
-    /* Sidebar */
-    --sidebar-background: 220 18% 6%;
-    --sidebar-foreground: 160 60% 80%;
-    --sidebar-primary: 145 80% 42%;
-    --sidebar-primary-foreground: 220 20% 4%;
-    --sidebar-accent: 220 15% 14%;
-    --sidebar-accent-foreground: 160 60% 85%;
-    --sidebar-border: 160 20% 15%;
-    --sidebar-ring: 145 80% 42%;
-
-    /* Gradient definitions */
-    --gradient-cyber: linear-gradient(135deg, hsl(145, 80%, 42%) 0%, hsl(180, 90%, 50%) 100%);
-    --gradient-threat: linear-gradient(135deg, hsl(0, 85%, 55%) 0%, hsl(38, 92%, 50%) 100%);
-    --gradient-intel: linear-gradient(135deg, hsl(200, 90%, 45%) 0%, hsl(180, 90%, 50%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(220, 20%, 4%) 0%, hsl(220, 18%, 8%) 100%);
-
-    /* Shadows */
-    --shadow-glow: 0 0 20px hsl(145, 80%, 42%, 0.3);
-    --shadow-threat: 0 0 20px hsl(0, 85%, 55%, 0.3);
-    --shadow-card: 0 4px 24px hsl(0, 0%, 0%, 0.4);
+    --glow-primary: 160 84% 39%;
+    --glow-success: 142 71% 45%;
+    --glow-destructive: 0 72% 51%;
+    --glow-accent: 187 85% 53%;
   }
 
   .dark {
-    /* Same as root - this is a dark-only theme */
-    --background: 220 20% 4%;
-    --foreground: 160 100% 85%;
-    --card: 220 18% 8%;
-    --card-foreground: 160 60% 90%;
-    --popover: 220 20% 6%;
-    --popover-foreground: 160 60% 90%;
-    --primary: 145 80% 42%;
-    --primary-foreground: 220 20% 4%;
-    --secondary: 200 90% 45%;
-    --secondary-foreground: 220 20% 4%;
-    --muted: 220 15% 12%;
-    --muted-foreground: 160 20% 55%;
-    --accent: 180 90% 50%;
-    --accent-foreground: 220 20% 4%;
-    --destructive: 0 85% 55%;
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 160 84% 39%;
+    --primary-foreground: 222 47% 6%;
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 222 47% 6%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 58%;
+    --accent: 187 85% 53%;
+    --accent-foreground: 222 47% 6%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 160 30% 20%;
-    --input: 220 15% 12%;
-    --ring: 145 80% 42%;
-    --sidebar-background: 220 18% 6%;
-    --sidebar-foreground: 160 60% 80%;
-    --sidebar-primary: 145 80% 42%;
-    --sidebar-primary-foreground: 220 20% 4%;
-    --sidebar-accent: 220 15% 14%;
-    --sidebar-accent-foreground: 160 60% 85%;
-    --sidebar-border: 160 20% 15%;
-    --sidebar-ring: 145 80% 42%;
+    --border: 217 33% 18%;
+    --input: 217 33% 14%;
+    --ring: 160 84% 39%;
   }
 }
 
@@ -127,137 +77,120 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Terminal text effect */
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* Scanline effect for retro terminal feel */
-  .scanlines::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      hsl(0, 0%, 0%, 0.03) 2px,
-      hsl(0, 0%, 0%, 0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 10;
   }
 }
 
 @layer components {
-  /* Cyber glow effects */
+  .glass {
+    @apply bg-card/70 backdrop-blur-xl border border-white/[0.08];
+  }
+
+  .glass-card {
+    @apply glass rounded-2xl shadow-2xl shadow-black/20;
+  }
+
   .glow-primary {
-    box-shadow: 0 0 20px hsl(145, 80%, 42%, 0.4), 0 0 40px hsl(145, 80%, 42%, 0.2);
+    box-shadow: 0 0 40px hsl(var(--glow-primary) / 0.25);
   }
 
   .glow-threat {
-    box-shadow: 0 0 20px hsl(0, 85%, 55%, 0.4), 0 0 40px hsl(0, 85%, 55%, 0.2);
+    box-shadow: 0 0 30px hsl(var(--glow-destructive) / 0.3);
   }
 
   .glow-intel {
-    box-shadow: 0 0 20px hsl(200, 90%, 55%, 0.4), 0 0 40px hsl(200, 90%, 55%, 0.2);
+    box-shadow: 0 0 30px hsl(var(--glow-accent) / 0.25);
   }
 
-  /* Terminal cursor blink */
-  .cursor-blink::after {
-    content: '▌';
-    animation: blink 1s step-end infinite;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  /* Pulse animation for active threats */
-  .pulse-threat {
-    animation: pulse-threat 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-threat {
-    0%, 100% { box-shadow: 0 0 0 0 hsl(0, 85%, 55%, 0.4); }
-    50% { box-shadow: 0 0 0 10px hsl(0, 85%, 55%, 0); }
-  }
-
-  /* Matrix rain effect text */
-  .text-glow {
-    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-  }
-
-  /* Hover lift effect */
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    @apply transition-all duration-300 ease-out;
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px hsl(0, 0%, 0%, 0.3);
+    @apply -translate-y-1;
+    box-shadow: 0 20px 40px -15px hsl(0 0% 0% / 0.4);
   }
 
-  /* Data grid styling */
+  .pulse-threat {
+    animation: pulse-ring 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--glow-destructive) / 0.4); }
+    50% { box-shadow: 0 0 0 8px hsl(var(--glow-destructive) / 0); }
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px currentColor;
+  }
+
+  .gradient-mesh {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, hsl(160 84% 39% / 0.15), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, hsl(199 89% 48% / 0.08), transparent),
+      radial-gradient(ellipse 50% 30% at 0% 50%, hsl(187 85% 53% / 0.06), transparent);
+  }
+
   .data-grid {
-    background-image: 
-      linear-gradient(hsl(160, 30%, 20%, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(160, 30%, 20%, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-
-  /* Status indicators */
-  .status-active {
-    @apply bg-success text-success-foreground;
-  }
-
-  .status-threat {
-    @apply bg-destructive text-destructive-foreground;
-  }
-
-  .status-intel {
-    @apply bg-secondary text-secondary-foreground;
+    background-image:
+      linear-gradient(hsl(217 33% 18% / 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(217 33% 18% / 0.4) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 }
 
 @layer utilities {
-  /* Gradient text */
   .text-gradient-cyber {
-    background: linear-gradient(135deg, hsl(145, 80%, 50%) 0%, hsl(180, 90%, 55%) 100%);
+    background: linear-gradient(135deg, hsl(160 84% 50%) 0%, hsl(187 85% 60%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-threat {
-    background: linear-gradient(135deg, hsl(0, 85%, 60%) 0%, hsl(38, 92%, 55%) 100%);
+    background: linear-gradient(135deg, hsl(0 72% 60%) 0%, hsl(38 92% 55%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Gradient backgrounds */
   .bg-gradient-cyber {
-    background: linear-gradient(135deg, hsl(145, 80%, 42%) 0%, hsl(180, 90%, 50%) 100%);
+    background: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(187 85% 48%) 100%);
   }
 
   .bg-gradient-threat {
-    background: linear-gradient(135deg, hsl(0, 85%, 55%) 0%, hsl(38, 92%, 50%) 100%);
+    background: linear-gradient(135deg, hsl(0 72% 51%) 0%, hsl(38 92% 50%) 100%);
   }
 
   .bg-gradient-dark {
-    background: linear-gradient(180deg, hsl(220, 20%, 4%) 0%, hsl(220, 18%, 10%) 100%);
+    background: linear-gradient(180deg, hsl(222 47% 6%) 0%, hsl(222 47% 9%) 100%);
   }
 
-  /* Border gradients */
-  .border-gradient-cyber {
-    border: 1px solid transparent;
-    background: linear-gradient(hsl(220, 18%, 8%), hsl(220, 18%, 8%)) padding-box,
-                linear-gradient(135deg, hsl(145, 80%, 42%) 0%, hsl(180, 90%, 50%) 100%) border-box;
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+
+  .animate-stagger-1 { animation-delay: 0.05s; }
+  .animate-stagger-2 { animation-delay: 0.1s; }
+  .animate-stagger-3 { animation-delay: 0.15s; }
+  .animate-stagger-4 { animation-delay: 0.2s; }
+  .animate-stagger-5 { animation-delay: 0.25s; }
+  .animate-stagger-6 { animation-delay: 0.3s; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

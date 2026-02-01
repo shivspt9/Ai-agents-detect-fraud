@@ -1,14 +1,23 @@
-import { 
-  Shield, 
-  AlertTriangle, 
-  Activity, 
+import {
+  Shield,
+  AlertTriangle,
+  Activity,
   Database,
   Percent,
-  MessageSquare
+  MessageSquare,
+  LayoutDashboard,
+  Brain,
+  TestTube,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Header } from "@/components/dashboard/Header";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ThreatFeed } from "@/components/dashboard/ThreatFeed";
@@ -30,218 +39,257 @@ const Index = () => {
     isLoading,
   } = useHoneypotData();
 
-  // Format recent activity for ThreatFeed
-  const threatFeedData = stats?.recent_activity || conversations.slice(0, 10).map(c => ({
-    conversation_id: c.conversation_id,
-    status: c.status,
-    scam_type: c.scam_type,
-    turns: c.turn_count,
-    last_activity: c.last_activity_at,
-  }));
+  const threatFeedData =
+    stats?.recent_activity ||
+    conversations.slice(0, 10).map((c) => ({
+      conversation_id: c.conversation_id,
+      status: c.status,
+      scam_type: c.scam_type,
+      turns: c.turn_count,
+      last_activity: c.last_activity_at,
+    }));
 
   return (
-    <div className="min-h-screen bg-gradient-dark data-grid">
+    <div className="min-h-screen bg-gradient-dark gradient-mesh data-grid">
       <Header onRefresh={refetchAll} isLoading={isLoading} />
 
-      <main className="container px-4 py-8 space-y-8">
-        {/* Stats Overview */}
-        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-          {statsLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-[140px] rounded-lg" />
-            ))
-          ) : (
-            <>
-              <StatCard
-                title="Total Conversations"
-                value={stats?.overview.total_conversations || 0}
-                icon={MessageSquare}
-                variant="default"
-              />
-              <StatCard
-                title="Scams Detected"
-                value={stats?.overview.scams_detected || 0}
-                icon={AlertTriangle}
-                variant="threat"
-              />
-              <StatCard
-                title="Active Engagements"
-                value={stats?.overview.active_engagements || 0}
-                icon={Activity}
-                variant="success"
-              />
-              <StatCard
-                title="Intelligence Extracted"
-                value={stats?.overview.total_intelligence || 0}
-                icon={Database}
-                variant="intel"
-              />
-              <StatCard
-                title="Detection Rate"
-                value={stats?.overview.detection_rate || "0%"}
-                icon={Percent}
-                variant="success"
-              />
-              <StatCard
-                title="Avg. Turns"
-                value={stats?.overview.avg_turns_per_conversation || "0"}
-                subtitle="per conversation"
-                icon={Shield}
-                variant="default"
-              />
-            </>
-          )}
+      <main className="container px-4 py-8 space-y-10">
+        {/* Hero + Stats */}
+        <section className="space-y-8">
+          <div className="text-center space-y-2">
+            <p className="text-sm font-medium text-primary">Autonomous Victim Agent</p>
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+              <span className="text-foreground">Real-time </span>
+              <span className="text-gradient-cyber">scam intelligence</span>
+              <span className="text-foreground"> extraction</span>
+            </h2>
+            <p className="mx-auto max-w-2xl text-muted-foreground">
+              Engage scammers naturally, extract bank details, UPI IDs, and phishing links—never break character.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            {statsLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-[140px] rounded-2xl opacity-50" />
+              ))
+            ) : (
+              <>
+                <StatCard
+                  title="Conversations"
+                  value={stats?.overview.total_conversations ?? 0}
+                  icon={MessageSquare}
+                  variant="default"
+                />
+                <StatCard
+                  title="Scams Detected"
+                  value={stats?.overview.scams_detected ?? 0}
+                  icon={AlertTriangle}
+                  variant="threat"
+                />
+                <StatCard
+                  title="Active Engagements"
+                  value={stats?.overview.active_engagements ?? 0}
+                  icon={Activity}
+                  variant="success"
+                />
+                <StatCard
+                  title="Intelligence"
+                  value={stats?.overview.total_intelligence ?? 0}
+                  icon={Database}
+                  variant="intel"
+                />
+                <StatCard
+                  title="Detection Rate"
+                  value={stats?.overview.detection_rate ?? "0%"}
+                  icon={Percent}
+                  variant="success"
+                />
+                <StatCard
+                  title="Avg. Turns"
+                  value={stats?.overview.avg_turns_per_conversation ?? "0"}
+                  subtitle="per conversation"
+                  icon={Shield}
+                  variant="default"
+                />
+              </>
+            )}
+          </div>
         </section>
 
-        {/* Main Content */}
+        {/* Tabs */}
         <Tabs defaultValue="monitor" className="space-y-6">
-          <TabsList className="bg-muted/50 border border-border">
-            <TabsTrigger value="monitor" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsList className="inline-flex h-12 gap-1 rounded-xl border border-white/10 bg-card/60 p-1">
+            <TabsTrigger
+              value="monitor"
+              className="gap-2 rounded-lg px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+            >
+              <LayoutDashboard className="h-4 w-4" />
               Live Monitor
             </TabsTrigger>
-            <TabsTrigger value="intelligence" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger
+              value="intelligence"
+              className="gap-2 rounded-lg px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+            >
+              <Brain className="h-4 w-4" />
               Intelligence
             </TabsTrigger>
-            <TabsTrigger value="test" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger
+              value="test"
+              className="gap-2 rounded-lg px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+            >
+              <TestTube className="h-4 w-4" />
               API Tester
             </TabsTrigger>
           </TabsList>
 
-          {/* Live Monitor Tab */}
           <TabsContent value="monitor" className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-2">
-              {/* Threat Feed */}
-              <Card className="border-border bg-card/50 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-destructive" />
+              <Card className="glass-card overflow-hidden">
+                <CardHeader className="border-b border-white/5 pb-4">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/15 text-destructive">
+                      <AlertTriangle className="h-5 w-5" />
+                    </div>
                     Active Threats
                   </CardTitle>
                   <CardDescription>
-                    Real-time feed of detected scam conversations
+                    Real-time feed · Victim agent engaging scammers
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
                   <ThreatFeed
-                    threats={threatFeedData || []}
+                    threats={threatFeedData ?? []}
                     onSelect={setSelectedConversationId}
-                    selectedId={selectedConversationId || undefined}
+                    selectedId={selectedConversationId ?? undefined}
                   />
                 </CardContent>
               </Card>
 
-              {/* Conversation Viewer */}
-              <Card className="border-border bg-card/50 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-primary" />
-                    Conversation Viewer
+              <Card className="glass-card overflow-hidden">
+                <CardHeader className="border-b border-white/5 pb-4">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                      <MessageSquare className="h-5 w-5" />
+                    </div>
+                    Conversation
                   </CardTitle>
                   <CardDescription>
-                    View agent-scammer conversation in real-time
+                    Victim vs scammer · Natural engagement
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="h-[450px]">
+                <CardContent className="h-[420px] p-0">
                   <ConversationViewer
                     messages={messages}
-                    conversationId={selectedConversationId || undefined}
+                    conversationId={selectedConversationId ?? undefined}
                   />
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          {/* Intelligence Tab */}
           <TabsContent value="intelligence">
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5 text-secondary" />
+            <Card className="glass-card overflow-hidden">
+              <CardHeader className="border-b border-white/5 pb-4">
+                <CardTitle className="flex items-center gap-3 text-lg">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/15 text-secondary">
+                    <Database className="h-5 w-5" />
+                  </div>
                   Extracted Intelligence
                 </CardTitle>
                 <CardDescription>
-                  Bank accounts, UPI IDs, phishing URLs, and other data extracted from scammers
+                  Bank accounts, UPI IDs, IFSC, phishing URLs from scammers
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <IntelligencePanel intelligence={intelligence} />
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* API Tester Tab */}
           <TabsContent value="test">
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-accent" />
+            <Card className="glass-card overflow-hidden">
+              <CardHeader className="border-b border-white/5 pb-4">
+                <CardTitle className="flex items-center gap-3 text-lg">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
+                    <Shield className="h-5 w-5" />
+                  </div>
                   API Tester
                 </CardTitle>
                 <CardDescription>
-                  Test the honeypot API with sample scam messages
+                  Send sample scam messages and see victim replies
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <ApiTester />
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
 
-        {/* API Documentation */}
-        <Card className="border-border bg-card/50 backdrop-blur">
-          <CardHeader>
-            <CardTitle>API Documentation</CardTitle>
+        {/* API Docs - Accordion */}
+        <Card className="glass-card overflow-hidden">
+          <CardHeader className="border-b border-white/5">
+            <CardTitle>API Reference</CardTitle>
             <CardDescription>
-              Send scam messages to the honeypot endpoint
+              POST messages to the honeypot endpoint
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-lg bg-muted p-4 font-mono text-sm">
-              <p className="text-muted-foreground mb-2"># Endpoint</p>
-              <p className="text-primary break-all">
-                POST {window.location.origin.replace('preview--', '').replace('.lovable.app', '.supabase.co')}/functions/v1/honeypot-engage
-              </p>
-            </div>
-            
-            <div className="rounded-lg bg-muted p-4 font-mono text-sm">
-              <p className="text-muted-foreground mb-2"># Request Body</p>
-              <pre className="text-foreground overflow-x-auto">
+          <CardContent className="pt-4">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="endpoint" className="border-white/5">
+                <AccordionTrigger className="font-mono text-sm text-muted-foreground hover:text-foreground">
+                  # Endpoint
+                </AccordionTrigger>
+                <AccordionContent>
+                  <p className="break-all font-mono text-sm text-primary">
+                    POST{" "}
+                    {import.meta.env.VITE_SUPABASE_URL
+                      ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/honeypot-engage`
+                      : `${window.location.origin}/functions/v1/honeypot-engage`}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="request" className="border-white/5">
+                <AccordionTrigger className="font-mono text-sm text-muted-foreground hover:text-foreground">
+                  # Request body
+                </AccordionTrigger>
+                <AccordionContent>
+                  <pre className="overflow-x-auto rounded-xl bg-muted/50 p-4 font-mono text-xs text-foreground">
 {`{
   "conversation_id": "unique-id-123",
   "message": "Your account is blocked. Click here.",
   "timestamp": "2026-01-29T10:00:00Z"
 }`}
-              </pre>
-            </div>
-
-            <div className="rounded-lg bg-muted p-4 font-mono text-sm">
-              <p className="text-muted-foreground mb-2"># Response</p>
-              <pre className="text-foreground overflow-x-auto">
+                  </pre>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="response" className="border-white/5">
+                <AccordionTrigger className="font-mono text-sm text-muted-foreground hover:text-foreground">
+                  # Response
+                </AccordionTrigger>
+                <AccordionContent>
+                  <pre className="overflow-x-auto rounded-xl bg-muted/50 p-4 font-mono text-xs text-foreground">
 {`{
   "scam_detected": true,
-  "scam_type": "phishing",
-  "agent_active": true,
-  "agent_reply": "Oh, what happened?",
-  "engagement_metrics": { "turns": 1 },
-  "extracted_intelligence": {
-    "bank_account": [],
-    "upi_id": [],
-    "phishing_url": ["..."]
-  }
+  "agent_reply": "...",
+  "conversation_stage": "engaging",
+  "confidence_score": 0.85,
+  "extracted_intelligence": { "bank_account": [], "ifsc": [], "upi_id": [], "phishing_url": [] }
 }`}
-              </pre>
-            </div>
+                  </pre>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/30 py-6 mt-12">
-        <div className="container px-4 text-center text-sm text-muted-foreground">
-          <p>Agentic Honeypot System • AI-Powered Scam Detection</p>
-          <p className="mt-1 text-xs">
-            Autonomous agent engagement • Real-time intelligence extraction
+      <footer className="mt-16 border-t border-white/5 bg-card/30 py-8">
+        <div className="container px-4 text-center">
+          <p className="font-semibold text-foreground">Scam Sentinel</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Engage · Extract · Never break character
           </p>
         </div>
       </footer>
