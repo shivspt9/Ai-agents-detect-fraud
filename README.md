@@ -1,91 +1,199 @@
-# Welcome to your Lovable project
+AI-Powered Agentic Honeypot System
+📌 Overview
 
-## Project info
+The AI-Powered Agentic Honeypot System is a cybersecurity-focused project designed to detect scam messages, engage scammers autonomously, and extract actionable intelligence such as bank details, UPI IDs, phone numbers, and phishing links.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+The system uses an AI-driven conversational agent to mimic human behavior, gather scam data safely, and store it for further analysis.
 
-## How can I edit this code?
+🎯 Key Objectives
 
-There are several ways of editing your application.
+Detect scam and phishing messages
 
-**Use Lovable**
+Engage attackers intelligently
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Extract scam-related intelligence
 
-Changes made via Lovable will be committed automatically to this repo.
+Store structured data for analysis
 
-**Use your preferred IDE**
+Provide dashboard-level insights
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Ensure safe and ethical AI interaction
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+🛠 Tech Stack
+Frontend
 
-Follow these steps:
+Vite
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+React (TypeScript)
+
+Tailwind CSS
+
+shadcn/ui
+
+Backend
+
+Supabase Edge Functions
+
+PostgreSQL (Supabase DB)
+
+AI-based conversation engine
+
+📁 Project Structure
+project-root/
+│
+├── src/                    # Frontend source code
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   └── main.tsx
+│
+├── supabase/
+│   └── functions/
+│       ├── honeypot-engage/
+│       └── honeypot-stats/
+│
+├── public/
+├── .env
+├── package.json
+└── README.md
+
+⚙️ Backend Functions
+🔹 honeypot-engage
+
+Handles:
+
+Scam detection
+
+AI-based conversation
+
+Data extraction
+
+Conversation logging
+
+Sample Input
+
+{
+  "message": "You won ₹10,000. Click here!"
+}
+
+
+Sample Output
+
+{
+  "isScam": true,
+  "reply": "Please share more details.",
+  "extracted_data": {
+    "upi": "abc@upi",
+    "phone": "9876543210"
+  }
+}
+
+🔹 honeypot-stats
+
+Provides:
+
+Total conversations
+
+Scam vs non-scam count
+
+Extracted intelligence summary
+
+Analytics-ready data
+
+🧠 AI Agent Workflow
+
+Message received
+
+Scam intent detection
+
+Context-aware response generation
+
+Information extraction
+
+Secure data storage
+
+Analytics-ready output
+
+🚀 Getting Started
+Step 1: Clone Repository
 git clone <YOUR_GIT_URL>
+cd <PROJECT_NAME>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Step 2: Install Dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
+Step 3: Configure Environment Variables
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Create .env file:
+
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_public_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_key
+LOVABLE_API_KEY=optional_ai_key
+
+Step 4: Run Frontend
 npm run dev
-```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## Backend (Supabase Edge Functions)
-
-The app uses two Supabase Edge Functions:
-
-- **honeypot-engage** – Receives scam messages, detects scams, runs the AI agent, stores conversations and extracted intelligence, returns JSON.
-- **honeypot-stats** – Returns dashboard stats (conversations, scams, intelligence breakdown).
-
-**Deployed on Supabase:** `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set automatically. Optionally set `LOVABLE_API_KEY` in Supabase Dashboard → Project Settings → Edge Functions → Secrets for AI-generated agent replies (otherwise a fallback reply is used).
-
-**Run locally:**
-
-```sh
-# Install Supabase CLI, then:
+Step 5: Run Backend (Supabase Functions)
 supabase functions serve
-```
 
-Set `.env` or `supabase/.env.local` with `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and optionally `LOVABLE_API_KEY`. The frontend uses `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` from `.env`.
+🌐 Deployment
+Frontend Hosting
 
-## What technologies are used for this project?
+Vercel
 
-This project is built with:
+Netlify
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Render
 
-## How can I deploy this project?
+Backend
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Supabase Edge Functions (Recommended)
 
-## Can I connect a custom domain to my Lovable project?
+🔐 Security Features
 
-Yes, you can!
+Environment-based secret management
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+No client-side API exposure
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Sanitized message handling
+
+Secure database access
+
+AI response filtering
+
+📊 Use Cases
+
+Scam detection research
+
+Cybercrime monitoring
+
+AI security testing
+
+Hackathons & academic projects
+
+Law enforcement simulations
+
+🚧 Future Enhancements
+
+Admin analytics dashboard
+
+Scam heatmap visualization
+
+Multilingual scam detection
+
+Voice-based scam analysis
+
+WhatsApp / Telegram integration
+
+✅ Project Status
+
+✔ Fully functional
+✔ Modular architecture
+✔ Scalable
+✔ Deployment-ready
+✔ Hackathon suitable
+
+📜 License
+
+This project is for educational and research purposes only.
