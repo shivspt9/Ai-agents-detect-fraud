@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.local
+# Runtime state for the file-store fallback
+data/
+.DS_Store
+*.log
+.vscode/
+.idea/

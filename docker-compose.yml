@@ -1,0 +1,25 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: scam-sentinel-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      # Read from the .env file next to this compose file, which is gitignored.
+      # The `:?` guard makes compose fail loudly if the variable is missing
+      # rather than silently starting the database with a guessable password.
+      # These must match the credentials in MONGODB_URI in server/.env.
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:?set MONGO_USERNAME in .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?set MONGO_PASSWORD in .env - see .env.example}
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  mongodb_data:

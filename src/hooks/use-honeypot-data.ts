@@ -1,119 +1,146 @@
-import { useState, useEffect, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { 
-  fetchStats, 
-  fetchConversations, 
-  fetchMessages, 
+import { useState, useCallback, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  fetchStats,
+  fetchAnalytics,
+  fetchConversations,
+  fetchConversationDetail,
   fetchIntelligence,
+  fetchMeta,
   type StatsResponse,
+  type AnalyticsResponse,
   type Conversation,
+  type ConversationDetail,
   type Message,
-  type Intelligence
-} from "@/lib/api";
+  type Intelligence,
+  type MetaResponse,
+  type ConversationFilters,
+  type IntelligenceFilters,
+} from '@/lib/api';
+import { useRealtime, type RealtimeEvent } from './use-realtime';
 
+export type { Conversation, Message, Intelligence, ConversationDetail };
+
+/**
+ * Central dashboard data source.
+ *
+ * Live updates arrive over the WebSocket; polling is only a slow safety net
+ * for the case where the socket is down, so the numbers stay correct without
+ * hammering the server every few seconds.
+ */
 export function useHoneypotData() {
+  const queryClient = useQueryClient();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [conversationFilters, setConversationFilters] = useState<ConversationFilters>({});
+  const [intelFilters, setIntelFilters] = useState<IntelligenceFilters>({});
 
-  // Fetch stats
+  const handleEvent = useCallback(
+    (event: RealtimeEvent) => {
+      // `engagement` means the server changed state. `hello` arrives on every
+      // (re)connection — resyncing there matters because anything that happened
+      // while the socket was down was never pushed, and the server may have
+      // restarted with different data entirely.
+      if (event.type !== 'engagement' && event.type !== 'hello') return;
+
+      for (const key of [
+        'honeypot-stats',
+        'analytics',
+        'conversations',
+        'intelligence',
+        'conversation-detail',
+      ]) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
+    },
+    [queryClient]
+  );
+
+  const { state: connectionState, isLive, lastEventAt } = useRealtime({ onEvent: handleEvent });
+
+  // With the socket up, a long interval is just a correctness backstop.
+  const backstop = isLive ? 120_000 : 10_000;
+
   const statsQuery = useQuery<StatsResponse>({
     queryKey: ['honeypot-stats'],
     queryFn: fetchStats,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: backstop,
   });
 
-  // Fetch conversations
+  const analyticsQuery = useQuery<AnalyticsResponse>({
+    queryKey: ['analytics'],
+    queryFn: () => fetchAnalytics(24),
+    refetchInterval: backstop,
+  });
+
   const conversationsQuery = useQuery<Conversation[]>({
-    queryKey: ['conversations'],
-    queryFn: fetchConversations,
-    refetchInterval: 10000, // Refresh every 10 seconds
+    queryKey: ['conversations', conversationFilters],
+    queryFn: () => fetchConversations(conversationFilters),
+    refetchInterval: backstop,
+    placeholderData: (previous) => previous,
   });
 
-  // Fetch messages for selected conversation
-  const messagesQuery = useQuery<Message[]>({
-    queryKey: ['messages', selectedConversationId],
-    queryFn: () => selectedConversationId ? fetchMessages(selectedConversationId) : Promise.resolve([]),
-    enabled: !!selectedConversationId,
+  const detailQuery = useQuery<ConversationDetail | null>({
+    queryKey: ['conversation-detail', selectedConversationId],
+    queryFn: () =>
+      selectedConversationId ? fetchConversationDetail(selectedConversationId) : Promise.resolve(null),
+    enabled: Boolean(selectedConversationId),
   });
 
-  // Fetch all intelligence
   const intelligenceQuery = useQuery<Intelligence[]>({
-    queryKey: ['intelligence'],
-    queryFn: fetchIntelligence,
-    refetchInterval: 15000,
+    queryKey: ['intelligence', intelFilters],
+    queryFn: () => fetchIntelligence(intelFilters),
+    refetchInterval: backstop,
+    placeholderData: (previous) => previous,
   });
 
-  // Subscribe to realtime updates
-  useEffect(() => {
-    const conversationsChannel = supabase
-      .channel('conversations-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'conversations' },
-        () => {
-          conversationsQuery.refetch();
-          statsQuery.refetch();
-        }
-      )
-      .subscribe();
-
-    const messagesChannel = supabase
-      .channel('messages-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'messages' },
-        (payload) => {
-          if (selectedConversationId && 
-              (payload.new as Message)?.conversation_id === selectedConversationId) {
-            messagesQuery.refetch();
-          }
-        }
-      )
-      .subscribe();
-
-    const intelChannel = supabase
-      .channel('intelligence-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'extracted_intelligence' },
-        () => {
-          intelligenceQuery.refetch();
-          statsQuery.refetch();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(conversationsChannel);
-      supabase.removeChannel(messagesChannel);
-      supabase.removeChannel(intelChannel);
-    };
-  }, [
-    selectedConversationId,
-    conversationsQuery,
-    messagesQuery,
-    intelligenceQuery,
-    statsQuery,
-  ]);
+  // Filter vocabularies change only on deploy, so they never need refetching.
+  const metaQuery = useQuery<MetaResponse>({
+    queryKey: ['meta'],
+    queryFn: fetchMeta,
+    staleTime: Infinity,
+  });
 
   const refetchAll = useCallback(() => {
     statsQuery.refetch();
+    analyticsQuery.refetch();
     conversationsQuery.refetch();
-    messagesQuery.refetch();
     intelligenceQuery.refetch();
-  }, [statsQuery, conversationsQuery, messagesQuery, intelligenceQuery]);
+    detailQuery.refetch();
+  }, [statsQuery, analyticsQuery, conversationsQuery, intelligenceQuery, detailQuery]);
+
+  const conversations = useMemo(() => conversationsQuery.data ?? [], [conversationsQuery.data]);
 
   return {
     stats: statsQuery.data,
     statsLoading: statsQuery.isLoading,
-    conversations: conversationsQuery.data || [],
+
+    analytics: analyticsQuery.data,
+    analyticsLoading: analyticsQuery.isLoading,
+
+    conversations,
     conversationsLoading: conversationsQuery.isLoading,
-    messages: messagesQuery.data || [],
-    messagesLoading: messagesQuery.isLoading,
-    intelligence: intelligenceQuery.data || [],
+
+    detail: detailQuery.data ?? null,
+    detailLoading: detailQuery.isFetching,
+    messages: detailQuery.data?.messages ?? [],
+
+    intelligence: intelligenceQuery.data ?? [],
     intelligenceLoading: intelligenceQuery.isLoading,
+
+    meta: metaQuery.data,
+
+    conversationFilters,
+    setConversationFilters,
+    intelFilters,
+    setIntelFilters,
+
     selectedConversationId,
     setSelectedConversationId,
+
+    connectionState,
+    isLive,
+    lastEventAt,
+
     refetchAll,
     isLoading: statsQuery.isLoading || conversationsQuery.isLoading,
   };

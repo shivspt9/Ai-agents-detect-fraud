@@ -1,4 +1,3 @@
-import { formatDistanceToNow } from "date-fns";
 import { 
   CreditCard, 
   Link2, 
@@ -11,7 +10,7 @@ import {
   Database,
   Download
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, safeRelativeTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,11 +19,13 @@ import type { Intelligence } from "@/lib/api";
 
 interface IntelligencePanelProps {
   intelligence: Intelligence[];
+  onSelectConversation?: (conversationId: string) => void;
 }
 
 const typeIcons: Record<string, typeof CreditCard> = {
   bank_account: CreditCard,
   ifsc: CreditCard,
+  card_number: CreditCard,
   upi_id: QrCode,
   phishing_url: Link2,
   phone_number: Phone,
@@ -35,6 +36,7 @@ const typeIcons: Record<string, typeof CreditCard> = {
 const typeLabels: Record<string, string> = {
   bank_account: "Bank Account",
   ifsc: "IFSC Code",
+  card_number: "Card Number",
   upi_id: "UPI ID",
   phishing_url: "Phishing URL",
   phone_number: "Phone Number",
@@ -44,6 +46,7 @@ const typeLabels: Record<string, string> = {
 
 const typeStyles: Record<string, string> = {
   bank_account: "border-destructive/30 bg-destructive/5 text-destructive",
+  card_number: "border-rose-500/30 bg-rose-500/5 text-rose-400",
   ifsc: "border-amber-500/30 bg-amber-500/5 text-amber-400",
   upi_id: "border-warning/30 bg-warning/5 text-warning",
   phishing_url: "border-secondary/30 bg-secondary/5 text-secondary",
@@ -52,7 +55,10 @@ const typeStyles: Record<string, string> = {
   crypto_wallet: "border-purple-500/30 bg-purple-500/5 text-purple-400",
 };
 
-export function IntelligencePanel({ intelligence }: IntelligencePanelProps) {
+export function IntelligencePanel({
+  intelligence,
+  onSelectConversation,
+}: IntelligencePanelProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopy = async (value: string, id: string) => {
@@ -84,28 +90,8 @@ export function IntelligencePanel({ intelligence }: IntelligencePanelProps) {
     return acc;
   }, {} as Record<string, Intelligence[]>);
 
-  const handleExport = () => {
-    const data = JSON.stringify(intelligence, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `intelligence-export-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <span className="text-sm text-muted-foreground">
-          {intelligence.length} items extracted
-        </span>
-        <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 rounded-xl border-white/10">
-          <Download className="h-4 w-4" />
-          Export JSON
-        </Button>
-      </div>
       <ScrollArea className="h-[500px]">
         <div className="space-y-8 pr-4">
           {Object.entries(groupedIntel).map(([type, items]) => {
@@ -131,9 +117,18 @@ export function IntelligencePanel({ intelligence }: IntelligencePanelProps) {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-mono text-sm">{intel.value}</p>
-                        <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                          <span>Confidence: {intel.confidence}%</span>
-                          <span>{formatDistanceToNow(new Date(intel.extracted_at), { addSuffix: true })}</span>
+                        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                          <span>Confidence: {Math.round(intel.confidence * 100)}%</span>
+                          {intel.note && <span className="italic">{intel.note}</span>}
+                          <span>{safeRelativeTime(intel.extracted_at)}</span>
+                          {onSelectConversation && (
+                            <button
+                              onClick={() => onSelectConversation(intel.conversation_id)}
+                              className="font-mono underline decoration-dotted underline-offset-2 hover:text-foreground"
+                            >
+                              {intel.conversation_id}
+                            </button>
+                          )}
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => handleCopy(intel.value, intel.id)} className="flex-shrink-0 rounded-lg">

@@ -8,7 +8,11 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    include: [
+      "src/**/*.{test,spec}.{ts,tsx}",
+      // Backend engine tests are plain ESM and run in the same suite.
+      "server/**/*.{test,spec}.js",
+    ],
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
