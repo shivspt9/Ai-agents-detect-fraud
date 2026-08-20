@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: scam-sentinel-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: STORAGE
+        value: file
+      - key: PORT
+        value: 10000
+
+  - type: web
+    name: scam-sentinel-web
+    runtime: static
+    rootDir: .
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: scam-sentinel-api
+          envVarKey: RENDER_EXTERNAL_URL
